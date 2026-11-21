@@ -22,6 +22,13 @@ python3 -m http.server 8000 -d docs
 
 `docs/posts.js`에서 1~9번 게시물의 본문(`caption`)과 게시 시간(`time`)을 고칠 수 있습니다. 줄바꿈은 `\n`, `#해시태그`는 자동으로 파란색이 됩니다.
 
+## 댓글 저장 (Firebase)
+
+- `docs/firebase-config.js`가 `null`이면 댓글은 각 방문자의 브라우저에만 남습니다.
+- Firebase 웹 앱의 `firebaseConfig` 값을 넣으면 모든 방문자에게 공유됩니다. 저장 위치는 `posts/{게시물번호}/comments`입니다.
+- 보안 규칙은 `firestore.rules`를 Firebase 콘솔 → Firestore → 규칙에 붙여넣습니다. 누구나 읽고 쓸 수 있지만 수정·삭제는 막혀 있고, 이름은 20자, 내용은 300자까지입니다.
+- 원치 않는 댓글은 Firebase 콘솔 → Firestore → 데이터에서 삭제합니다.
+
 ## 1번 게시물 영상 넣기
 
 `docs/assets/reel-1.mp4` 파일이 있으면 게시물 화면에서 자동 재생됩니다(무음 시작, 🔇 버튼으로 소리 켜기). 파일이 없으면 기존 이미지가 보입니다.

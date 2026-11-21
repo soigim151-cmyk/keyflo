@@ -177,9 +177,20 @@
       else navigator.clipboard?.writeText(location.href).then(() => toast("링크를 복사했어요"));
     });
 
-    // Comment box: 게시 lights up once there is text; posting adds the comment under the caption
-    // (only on this screen — nothing is sent anywhere).
+    // Comment box: 게시 lights up once there is text; comments are saved through commentStore
+    // (shared via Firebase when configured, otherwise kept in this browser).
     const form = $(".feed-reply", item), input = $("input", form), postBtn = $(".post-btn", form);
+    const postId = String(posts.indexOf(post) + 1);
+    const list = $(".feed-comments", item);
+    unsubscribers.push(commentStore.subscribe(postId, comments => {
+      list.replaceChildren(...comments.map(c => {
+        const li = document.createElement("li");
+        const name = document.createElement("strong");
+        name.textContent = c.name;
+        li.append(name, " ", c.text);
+        return li;
+      }));
+    }));
     input.addEventListener("input", () => { postBtn.disabled = !input.value.trim(); });
     // 💬 opens / closes the comment box.
     const commentBtn = $(".comment", item);
@@ -190,19 +201,82 @@
       if (!form.hidden) input.focus();
     });
     $(".emoji", item).addEventListener("click", () => { input.value += "🤍"; input.dispatchEvent(new Event("input")); input.focus(); });
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", async e => {
       e.preventDefault();
-      const text = input.value.trim();
+      const text = input.value.trim().slice(0, 300);
       if (!text) return;
-      const li = document.createElement("li");
-      li.innerHTML = "<strong>회원님</strong> ";
-      li.append(text);
-      $(".feed-comments", item).appendChild(li);
-      input.value = "";
+      const name = askName();
+      if (!name) return;
       postBtn.disabled = true;
+      try {
+        await commentStore.add(postId, name, text);
+        input.value = "";
+      } catch (err) {
+        console.error(err);
+        toast("댓글을 저장하지 못했어요. 잠시 후 다시 시도해 주세요");
+        postBtn.disabled = false;
+      }
     });
     return item;
   }
+
+  /* ── Comment storage ── */
+  // Commenter's display name, asked once and remembered in this browser.
+  function askName() {
+    let name = "";
+    try { name = localStorage.getItem("keyflo-name") || ""; } catch {}
+    if (name) return name;
+    name = (window.prompt("댓글에 표시할 이름을 입력해 주세요 (최대 20자)", "") || "").trim().slice(0, 20);
+    if (!name) return "";
+    try { localStorage.setItem("keyflo-name", name); } catch {}
+    return name;
+  }
+
+  // Shared store (Firebase Firestore): posts/{postId}/comments/{auto-id} = { name, text, createdAt }
+  function firebaseStore(config) {
+    const V = "10.12.2";
+    const ready = Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+    ]).then(([app, fs]) => ({ fs, db: fs.getFirestore(app.initializeApp(config)) }));
+    return {
+      subscribe(postId, cb) {
+        let stop = () => {}, cancelled = false;
+        ready.then(({ fs, db }) => {
+          if (cancelled) return;
+          const q = fs.query(fs.collection(db, "posts", postId, "comments"), fs.orderBy("createdAt"), fs.limit(300));
+          stop = fs.onSnapshot(q, snap => cb(snap.docs.map(d => d.data())), err => console.error(err));
+        }).catch(err => console.error(err));
+        return () => { cancelled = true; stop(); };
+      },
+      async add(postId, name, text) {
+        const { fs, db } = await ready;
+        await fs.addDoc(fs.collection(db, "posts", postId, "comments"), { name, text, createdAt: fs.serverTimestamp() });
+      },
+    };
+  }
+
+  // Fallback when Firebase is not configured: comments stay in this browser only.
+  function localStore() {
+    const listeners = {};
+    const key = id => "keyflo-comments-" + id;
+    const read = id => { try { return JSON.parse(localStorage.getItem(key(id))) || []; } catch { return []; } };
+    return {
+      subscribe(postId, cb) {
+        (listeners[postId] ||= new Set()).add(cb);
+        cb(read(postId));
+        return () => listeners[postId].delete(cb);
+      },
+      async add(postId, name, text) {
+        const next = [...read(postId), { name, text }];
+        try { localStorage.setItem(key(postId), JSON.stringify(next)); } catch {}
+        listeners[postId]?.forEach(cb => cb(next));
+      },
+    };
+  }
+
+  const commentStore = window.KEYFLO_FIREBASE ? firebaseStore(window.KEYFLO_FIREBASE) : localStore();
+  const unsubscribers = [];
 
   function openFeed(startPost) {
     const visible = posts.filter(p => !p.hidden);
@@ -228,6 +302,7 @@
     videoObserver?.disconnect();
     $$("video", feedList).forEach(v => v.pause());
     feed.hidden = true;
+    unsubscribers.splice(0).forEach(stop => stop());
     feedList.replaceChildren();
     document.body.classList.remove("feed-open");
   }
