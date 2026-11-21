@@ -302,3 +302,12 @@ body.feed-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation-duration: 0s !important; }
 }
+
+/* In the post feed the tile is full-width, so pin the reel / carousel badge to a fixed size
+   instead of letting it scale with the image. */
+.feed-media .badge {
+  left: auto; right: 12px; top: 12px;
+  width: 16px; height: auto;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,.35));
+}
+.feed-media .sound { width: 24px; height: 24px; font-size: 11px; }
