@@ -127,16 +127,29 @@
         <button class="act save" type="button" aria-pressed="false" aria-label="저장">${ICONS.bookmark}</button>
       </div>
       <p class="feed-likes"><b>여러 명</b>이 좋아합니다</p>
-      <p class="feed-caption"><strong>KEYFLO</strong> </p>
+      <div class="feed-caption clamped"><p><strong>KEYFLO</strong> </p><button class="more-btn" type="button">더 보기</button></div>
       <ul class="feed-comments"></ul>
       <p class="feed-time"></p>
-      <form class="feed-reply" autocomplete="off">
+      <form class="feed-reply" autocomplete="off" hidden>
         <button class="act emoji" type="button" aria-label="이모티콘">${ICONS.smile}</button>
         <input type="text" name="reply" placeholder="댓글 달기..." aria-label="댓글 달기" maxlength="300" />
         <button class="post-btn" type="submit" disabled>게시</button>
       </form>`;
-    $(".feed-caption", item).append(post.dataset.caption || CAPTION);
-    $(".feed-time", item).textContent = post.dataset.time || "1일 전";
+    const data = (window.KEYFLO_POSTS || [])[posts.indexOf(post)] || {};
+    const captionBox = $(".feed-caption", item);
+    const captionP = $("p", captionBox);
+    // Hashtags become blue spans; everything else is inserted as plain text.
+    (data.caption || CAPTION).split(/(#[^\s#]+)/).forEach(part => {
+      if (!part) return;
+      if (part.startsWith("#")) {
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = part;
+        captionP.append(tag);
+      } else captionP.append(part);
+    });
+    $(".more-btn", captionBox).addEventListener("click", () => captionBox.classList.remove("clamped"));
+    $(".feed-time", item).textContent = data.time || "1일 전";
     $(".feed-media", item).appendChild(buildMedia(post));
 
     const toggle = btn => {
@@ -164,7 +177,14 @@
     // (only on this screen — nothing is sent anywhere).
     const form = $(".feed-reply", item), input = $("input", form), postBtn = $(".post-btn", form);
     input.addEventListener("input", () => { postBtn.disabled = !input.value.trim(); });
-    $(".comment", item).addEventListener("click", () => input.focus());
+    // 💬 opens / closes the comment box.
+    const commentBtn = $(".comment", item);
+    commentBtn.setAttribute("aria-expanded", "false");
+    commentBtn.addEventListener("click", () => {
+      form.hidden = !form.hidden;
+      commentBtn.setAttribute("aria-expanded", String(!form.hidden));
+      if (!form.hidden) input.focus();
+    });
     $(".emoji", item).addEventListener("click", () => { input.value += "🤍"; input.dispatchEvent(new Event("input")); input.focus(); });
     form.addEventListener("submit", e => {
       e.preventDefault();

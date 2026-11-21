@@ -18,6 +18,10 @@ python3 -m http.server 8000 -d docs
 - 하이라이트(ABOUT / SCENT / OBJECT) 스토리 뷰어
 - Shop · 링크 → https://floranc.com/
 
+## 게시물 글 고치기
+
+`docs/posts.js`에서 1~9번 게시물의 본문(`caption`)과 게시 시간(`time`)을 고칠 수 있습니다. 줄바꿈은 `\n`, `#해시태그`는 자동으로 파란색이 됩니다.
+
 ## 1번 게시물 영상 넣기
 
 `docs/assets/reel-1.mp4` 파일이 있으면 게시물 화면에서 자동 재생됩니다(무음 시작, 🔇 버튼으로 소리 켜기). 파일이 없으면 기존 이미지가 보입니다.
