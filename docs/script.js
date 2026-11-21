@@ -59,30 +59,122 @@
   }
   tabs.forEach(t => t.addEventListener("click", () => selectTab(t.dataset.tab)));
 
-  /* ── Post viewer ── */
-  const viewer = $("#postViewer");
-  const media = $(".viewer-media", viewer);
-  const likeBtn = $(".like", viewer);
-  function openPost(post) {
-    media.replaceChildren(post.cloneNode(true));
-    media.firstChild.removeAttribute("tabindex");
-    likeBtn.setAttribute("aria-pressed", "false");
-    likeBtn.textContent = "♡";
-    viewer.showModal();
+  /* ── Post feed: tap a tile → scrollable list of every post, starting at that one ── */
+  const feed = $("#feedView");
+  const feedList = $(".feed-list", feed);
+  const CAPTION = "Scent holds what time leaves behind.";
+  let videoObserver;
+
+  function buildMedia(post) {
+    const tile = post.cloneNode(true);
+    tile.removeAttribute("tabindex");
+    tile.removeAttribute("hidden");
+    const src = post.dataset.video;
+    if (src) {
+      const v = document.createElement("video");
+      v.src = src;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.preload = "metadata";
+      v.setAttribute("playsinline", "");
+      // No video file uploaded yet → drop the <video> and keep the image tile.
+      v.addEventListener("error", () => tile.removeChild(v), { once: true });
+      const sound = document.createElement("button");
+      sound.type = "button";
+      sound.className = "sound";
+      sound.textContent = "🔇";
+      sound.setAttribute("aria-label", "소리 켜기");
+      sound.addEventListener("click", e => {
+        e.stopPropagation();
+        v.muted = !v.muted;
+        sound.textContent = v.muted ? "🔇" : "🔊";
+        sound.setAttribute("aria-label", v.muted ? "소리 켜기" : "소리 끄기");
+      });
+      v.addEventListener("loadeddata", () => tile.appendChild(sound), { once: true });
+      v.addEventListener("click", () => (v.paused ? v.play() : v.pause()));
+      tile.appendChild(v);
+    }
+    return tile;
   }
+
+  function buildItem(post) {
+    const item = document.createElement("article");
+    item.className = "feed-item";
+    item.innerHTML = `
+      <header class="feed-head">
+        <span class="mini-avatar"><img src="assets/logo-keyflo.png" alt="" /></span>
+        <strong>KEYFLO</strong><span class="dots" aria-hidden="true">···</span>
+      </header>
+      <div class="feed-media"></div>
+      <div class="feed-actions">
+        <button class="like" type="button" aria-pressed="false" aria-label="좋아요">♡</button>
+        <button class="share" type="button" aria-label="공유">↗</button>
+      </div>
+      <p class="feed-likes">좋아요 <span>0</span>개</p>
+      <p class="feed-caption"><strong>KEYFLO</strong> </p>`;
+    $(".feed-caption", item).append(post.dataset.caption || CAPTION);
+    $(".feed-media", item).appendChild(buildMedia(post));
+    const like = $(".like", item), count = $(".feed-likes span", item);
+    const toggleLike = () => {
+      const on = like.getAttribute("aria-pressed") !== "true";
+      like.setAttribute("aria-pressed", String(on));
+      like.textContent = on ? "♥" : "♡";
+      count.textContent = on ? "1" : "0";
+    };
+    like.addEventListener("click", toggleLike);
+    $(".feed-media", item).addEventListener("dblclick", () => {
+      if (like.getAttribute("aria-pressed") !== "true") toggleLike();
+    });
+    $(".share", item).addEventListener("click", () => {
+      if (navigator.share) navigator.share({ title: "KEYFLO", url: location.href }).catch(() => {});
+      else navigator.clipboard?.writeText(location.href).then(() => toast("링크를 복사했어요"));
+    });
+    return item;
+  }
+
+  function openFeed(startPost) {
+    const visible = posts.filter(p => !p.hidden);
+    const items = visible.map(buildItem);
+    feedList.replaceChildren(...items);
+    feed.hidden = false;
+    document.body.classList.add("feed-open");
+    feed.scrollTop = 0;
+    items[visible.indexOf(startPost)]?.scrollIntoView({ block: "start" });
+
+    videoObserver?.disconnect();
+    videoObserver = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) e.target.play().catch(() => {});
+      else e.target.pause();
+    }), { root: feed, threshold: 0.6 });
+    $$("video", feedList).forEach(v => videoObserver.observe(v));
+
+    history.pushState({ feed: true }, "");
+    $(".feed-back", feed).focus({ preventScroll: true });
+  }
+  function closeFeed() {
+    if (feed.hidden) return;
+    videoObserver?.disconnect();
+    $$("video", feedList).forEach(v => v.pause());
+    feed.hidden = true;
+    feedList.replaceChildren();
+    document.body.classList.remove("feed-open");
+  }
+  const leaveFeed = () => (history.state?.feed ? history.back() : closeFeed());
+  $(".feed-back", feed).addEventListener("click", leaveFeed);
+  window.addEventListener("popstate", closeFeed);
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !feed.hidden) leaveFeed(); });
+
   posts.forEach(p => {
-    p.addEventListener("click", () => openPost(p));
-    p.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPost(p); } });
-  });
-  likeBtn.addEventListener("click", () => {
-    const on = likeBtn.getAttribute("aria-pressed") !== "true";
-    likeBtn.setAttribute("aria-pressed", String(on));
-    likeBtn.textContent = on ? "♥" : "♡";
+    p.addEventListener("click", () => openFeed(p));
+    p.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openFeed(p); }
+    });
   });
 
   /* ── Story (highlight) viewer ── */
   const STORIES = {
-    about:  { title: "ABOUT",  images: ["assets/post-694.png", "assets/post-715.png"] },
+    about:  { title: "ABOUT",  images: ["card", "assets/post-715.png"] },
     scent:  { title: "SCENT",  images: ["assets/story-725.png", "assets/post-701.png"] },
     object: { title: "OBJECT", images: ["assets/post-720.png", "assets/post-717.png", "assets/post-700.png"] },
   };
@@ -90,12 +182,18 @@
   const story = $("#storyViewer");
   const bars = $(".story-bars", story);
   const storyImg = $(".story-img", story);
+  const storyBg = $(".story-bg", story);
+  const storyCard = $(".story-card", story);
   let current = null, index = 0, timer;
 
   function showFrame() {
     clearTimeout(timer);
-    const frames = current.images;
-    storyImg.src = frames[index];
+    const frame = current.images[index];
+    const isCard = frame === "card";
+    storyCard.hidden = !isCard;
+    storyImg.hidden = isCard;
+    storyBg.hidden = isCard;
+    if (!isCard) { storyImg.src = frame; storyBg.src = frame; }
     $$("span", bars).forEach((b, i) => {
       b.className = i < index ? "done" : i === index ? "active" : "";
       const bar = b.firstChild; bar.style.animation = "none"; bar.offsetWidth; bar.style.animation = "";
@@ -120,7 +218,7 @@
   story.addEventListener("close", () => clearTimeout(timer));
 
   /* ── Shared dialog behaviour: close button + backdrop click ── */
-  [viewer, story].forEach(d => {
+  [story].forEach(d => {
     $(".close", d).addEventListener("click", () => d.close());
     d.addEventListener("click", e => { if (e.target === d) d.close(); });
   });

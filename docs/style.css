@@ -209,33 +209,74 @@ ul { list-style: none; }
   text-align: center; font-size: 13px; color: #8a8a8a;
 }
 
-/* ───────── Post viewer ───────── */
 dialog { border: 0; padding: 0; background: transparent; max-width: none; max-height: none; }
 dialog::backdrop { background: rgba(0,0,0,.7); }
-.viewer-card {
-  width: min(92vw, 460px);
-  background: #fff; border-radius: 12px; overflow: hidden;
-}
-.viewer-head, .viewer-foot { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 13px; }
-.viewer-head .close { margin-left: auto; font-size: 16px; }
 .mini-avatar {
-  width: 28px; height: 28px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: var(--brown); display: grid; place-items: center; flex: none;
 }
 .mini-avatar img { width: 70%; }
-.viewer-media .post { cursor: default; width: 100%; }
-.viewer-media .post::after { display: none; }
-.viewer-foot p { font-size: 13px; line-height: 1.4; }
-.like { font-size: 22px; line-height: 1; transition: transform .15s; }
-.like[aria-pressed="true"] { color: #ed4956; transform: scale(1.15); }
+
+/* ───────── Post feed (scroll view) ───────── */
+body.feed-open { overflow: hidden; }
+.feed {
+  position: fixed; inset: 0; z-index: 10;
+  width: min(100vw, var(--page-max)); margin: 0 auto;
+  background: #fff;
+  overflow-y: auto; overscroll-behavior: contain;
+}
+.feed[hidden] { display: none; }
+.feed-bar {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: 16px;
+  height: 52px; padding: 0 16px;
+  background: rgba(255,255,255,.96); backdrop-filter: blur(8px);
+  border-bottom: 1px solid #efefef;
+}
+.feed-back img { width: 11px; height: 19px; }
+.feed-back { padding: 6px 6px 6px 0; }
+.feed-title { display: flex; flex-direction: column; line-height: 1.2; }
+.feed-title small { font-size: 11px; color: #8a8a8a; }
+.feed-title strong { font-size: 15px; font-weight: 600; }
+.feed-item { padding-bottom: 18px; scroll-margin-top: 52px; }
+.feed-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 13px; }
+.feed-head .dots { margin-left: auto; font-size: 18px; letter-spacing: 1px; opacity: .6; }
+.feed-media .post { cursor: default; width: 100%; }
+.feed-media .post::after { display: none; }
+.feed-media video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; background: #000; z-index: 1;
+}
+.sound {
+  position: absolute; right: 10px; bottom: 10px; z-index: 2;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,.6); color: #fff; font-size: 13px;
+  display: grid; place-items: center;
+}
+.feed-actions { display: flex; gap: 14px; padding: 10px 14px 4px; }
+.feed-actions button { font-size: 24px; line-height: 1; transition: transform .15s; }
+.like[aria-pressed="true"] { color: #ed4956; transform: scale(1.12); }
+.feed-likes, .feed-caption { padding: 2px 14px; font-size: 13px; line-height: 1.45; }
+.feed-likes { font-weight: 600; }
 
 /* ───────── Story viewer ───────── */
 .story {
+  position: fixed; inset: 0; margin: auto;
   width: min(100vw, 440px); height: min(100dvh, 780px);
   background: #000; color: #fff; overflow: hidden;
 }
 .story[open] { display: block; }
-.story-img { width: 100%; height: 100%; object-fit: cover; }
+.story-bg, .story-img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.story-bg { object-fit: cover; filter: blur(28px) brightness(.55); transform: scale(1.15); }
+.story-img { object-fit: contain; }
+.story-card {
+  position: absolute; inset: 0; z-index: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: var(--brown); text-align: center;
+}
+.story-card[hidden] { display: none; }
+.story-card img { width: 46%; }
+.story-card p { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.8); }
 .story-bars { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; gap: 4px; z-index: 2; }
 .story-bars span { flex: 1; height: 2px; background: rgba(255,255,255,.35); border-radius: 2px; overflow: hidden; }
 .story-bars span i { display: block; height: 100%; width: 0; background: #fff; }

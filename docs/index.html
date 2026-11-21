@@ -35,12 +35,12 @@
       <p class="bio-name">키플로</p>
       <p class="bio">Scent holds what time leaves behind.<br />Keep your moments with KEYFLO.</p>
       <img class="link-icon" src="assets/icon-link.svg" alt="" />
-      <a class="bio-link" href="https://keyflo.com" target="_blank" rel="noopener">https://keyflo.com</a>
+      <a class="bio-link" href="https://floranc.com/" target="_blank" rel="noopener">https://keyflo.com</a>
 
       <div class="actions">
         <button id="followBtn" class="btn btn-primary" type="button" aria-pressed="false" style="--x:19.95">팔로우</button>
         <button id="messageBtn" class="btn" type="button" style="--x:141.23">메세지</button>
-        <a class="btn" href="https://keyflo.com" target="_blank" rel="noopener" style="--x:262.51">Shop</a>
+        <a class="btn" href="https://floranc.com/" target="_blank" rel="noopener" style="--x:262.51">Shop</a>
       </div>
 
       <!-- Highlights -->
@@ -92,7 +92,7 @@
          top-left, on a 134-wide design tile whose height (--th) varies per row as in Figma; CSS converts them to %. -->
     <section class="grid" id="grid">
       <!-- 1 -->
-      <article class="post" data-type="reel" style="--th:159.03" tabindex="0" aria-label="게시물 1 · 릴스">
+      <article class="post" data-type="reel" data-video="assets/reel-1.mp4" style="--th:159.03" tabindex="0" aria-label="게시물 1 · 릴스">
         <img class="L fill" src="assets/post-694.png" alt="" style="--x:-19.3; --y:0; --w:172.41; --h:159.33" />
         <p class="L caption-tiny" style="--cx:68.23; --y:141.77">Scent holds what time leaves behind.</p>
         <img class="L" src="assets/icon-reel.svg" alt="" style="--x:119.97; --y:6.17; --w:8.18; --h:9.62" />
@@ -162,21 +162,14 @@
     </section>
   </main>
 
-  <!-- Post viewer -->
-  <dialog class="viewer" id="postViewer" aria-label="게시물 보기">
-    <div class="viewer-card">
-      <header class="viewer-head">
-        <span class="mini-avatar"><img src="assets/logo-keyflo.png" alt="" /></span>
-        <strong>KEYFLO</strong>
-        <button class="close" type="button" aria-label="닫기">✕</button>
-      </header>
-      <div class="viewer-media"></div>
-      <footer class="viewer-foot">
-        <button class="like" type="button" aria-pressed="false" aria-label="좋아요">♡</button>
-        <p><strong>KEYFLO</strong> Scent holds what time leaves behind.</p>
-      </footer>
-    </div>
-  </dialog>
+  <!-- Post feed (opens when a grid post is tapped; scroll through every post) -->
+  <section class="feed" id="feedView" hidden aria-label="게시물">
+    <header class="feed-bar">
+      <button class="feed-back" type="button" aria-label="뒤로 가기"><img src="assets/icon-back.svg" alt="" /></button>
+      <div class="feed-title"><small>KEYFLO</small><strong>게시물</strong></div>
+    </header>
+    <div class="feed-list"></div>
+  </section>
 
   <!-- Story viewer -->
   <dialog class="story" id="storyViewer" aria-label="하이라이트">
@@ -186,7 +179,12 @@
       <strong class="story-title"></strong>
       <button class="close" type="button" aria-label="닫기">✕</button>
     </div>
+    <img class="story-bg" alt="" aria-hidden="true" />
     <img class="story-img" alt="" />
+    <div class="story-card" hidden>
+      <img src="assets/logo-keyflo.png" alt="KEYFLO" />
+      <p>Scent holds what time leaves behind.<br />Keep your moments with KEYFLO.</p>
+    </div>
     <button class="story-nav prev" type="button" aria-label="이전"></button>
     <button class="story-nav next" type="button" aria-label="다음"></button>
   </dialog>
