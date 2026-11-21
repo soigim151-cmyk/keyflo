@@ -253,11 +253,39 @@ body.feed-open { overflow: hidden; }
   background: rgba(0,0,0,.6); color: #fff; font-size: 13px;
   display: grid; place-items: center;
 }
-.feed-actions { display: flex; gap: 14px; padding: 10px 14px 4px; }
-.feed-actions button { font-size: 24px; line-height: 1; transition: transform .15s; }
-.like[aria-pressed="true"] { color: #ed4956; transform: scale(1.12); }
-.feed-likes, .feed-caption { padding: 2px 14px; font-size: 13px; line-height: 1.45; }
-.feed-likes { font-weight: 600; }
+/* Action bar — modelled on Instagram: ♡ 💬 ⟲ ➤ … 🔖 */
+.feed-actions { display: flex; align-items: center; gap: 16px; padding: 10px 14px 6px; }
+.act { display: grid; place-items: center; color: #000; transition: transform .15s, opacity .15s; }
+.act:hover { opacity: .55; }
+.act:active { transform: scale(.88); }
+.act svg { width: 24px; height: 24px; }
+.feed-actions .save { margin-left: auto; }
+.like[aria-pressed="true"] { color: #ff3040; }
+.like[aria-pressed="true"] svg { fill: currentColor; animation: pop .3s ease; }
+.save[aria-pressed="true"] svg { fill: currentColor; }
+.repost[aria-pressed="true"] { color: #2ab160; }
+@keyframes pop { 50% { transform: scale(1.2); } }
+
+.feed-likes, .feed-caption, .feed-comments li { padding: 2px 14px; font-size: 14px; line-height: 1.45; }
+.feed-likes { font-weight: 400; }
+.feed-likes b, .feed-caption strong, .feed-comments strong { font-weight: 600; }
+.feed-comments { list-style: none; }
+.feed-time { padding: 4px 14px 12px; font-size: 12px; color: #737373; }
+
+.feed-reply {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0; padding: 12px 14px;
+  border-top: 1px solid #dbdbdb;
+}
+.feed-reply .emoji svg { width: 26px; height: 26px; }
+.feed-reply input {
+  flex: 1; min-width: 0;
+  border: 0; outline: 0; background: none;
+  font: inherit; font-size: 14px; color: #000;
+}
+.feed-reply input::placeholder { color: #737373; }
+.post-btn { color: #0095f6; font-size: 14px; font-weight: 600; }
+.post-btn:disabled { color: #b2dffc; cursor: default; }
 
 /* ───────── Story viewer ───────── */
 .story {
