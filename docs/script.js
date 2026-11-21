@@ -186,8 +186,21 @@
       list.replaceChildren(...comments.map(c => {
         const li = document.createElement("li");
         const name = document.createElement("strong");
-        name.textContent = c.name;
+        name.textContent = NICK_PREFIX + c.num;
         li.append(name, " ", c.text);
+        if (commentStore.isMine(c)) {
+          const del = document.createElement("button");
+          del.type = "button";
+          del.className = "del-btn";
+          del.textContent = "삭제";
+          del.setAttribute("aria-label", `${NICK_PREFIX}${c.num} 댓글 삭제`);
+          del.addEventListener("click", async () => {
+            if (!window.confirm("이 댓글을 삭제할까요?")) return;
+            try { await commentStore.remove(c); }
+            catch (err) { console.error(err); toast("삭제하지 못했어요. 잠시 후 다시 시도해 주세요"); }
+          });
+          li.append(" ", del);
+        }
         return li;
       }));
     }));
@@ -205,11 +218,9 @@
       e.preventDefault();
       const text = input.value.trim().slice(0, 300);
       if (!text) return;
-      const name = askName();
-      if (!name) return;
       postBtn.disabled = true;
       try {
-        await commentStore.add(postId, name, text);
+        await commentStore.add(postId, text);
         input.value = "";
       } catch (err) {
         console.error(err);
@@ -220,58 +231,85 @@
     return item;
   }
 
-  /* ── Comment storage ── */
-  // Commenter's display name, asked once and remembered in this browser.
-  function askName() {
-    let name = "";
-    try { name = localStorage.getItem("keyflo-name") || ""; } catch {}
-    if (name) return name;
-    name = (window.prompt("댓글에 표시할 이름을 입력해 주세요 (최대 20자)", "") || "").trim().slice(0, 20);
-    if (!name) return "";
-    try { localStorage.setItem("keyflo-name", name); } catch {}
-    return name;
-  }
+  /* ── Comment storage ──
+     Every comment gets the next number from ONE site-wide counter (not per post), and is shown
+     as NICK_PREFIX + number, e.g. 익명1, 익명2 … Numbers never shift when a comment is deleted.
+     Only the browser that wrote a comment can delete it. */
+  const NICK_PREFIX = "익명";
 
-  // Shared store (Firebase Firestore): posts/{postId}/comments/{auto-id} = { name, text, createdAt }
+  // Shared store — Firebase Firestore + anonymous Auth (uid identifies "my" comments).
+  //   comments/c{num}   = { post, num, text, uid, createdAt }
+  //   counters/comments = { n }   ← last number handed out
   function firebaseStore(config) {
     const V = "10.12.2";
+    let myUid = null;
     const ready = Promise.all([
       import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
       import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
-    ]).then(([app, fs]) => ({ fs, db: fs.getFirestore(app.initializeApp(config)) }));
+      import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+    ]).then(async ([appMod, fs, authMod]) => {
+      const app = appMod.initializeApp(config);
+      const cred = await authMod.signInAnonymously(authMod.getAuth(app));
+      myUid = cred.user.uid;
+      return { fs, db: fs.getFirestore(app) };
+    });
     return {
+      isMine: c => !!myUid && c.uid === myUid,
       subscribe(postId, cb) {
         let stop = () => {}, cancelled = false;
         ready.then(({ fs, db }) => {
           if (cancelled) return;
-          const q = fs.query(fs.collection(db, "posts", postId, "comments"), fs.orderBy("createdAt"), fs.limit(300));
-          stop = fs.onSnapshot(q, snap => cb(snap.docs.map(d => d.data())), err => console.error(err));
+          const q = fs.query(fs.collection(db, "comments"), fs.where("post", "==", postId));
+          stop = fs.onSnapshot(q,
+            snap => cb(snap.docs.map(d => d.data()).sort((a, b) => a.num - b.num)),
+            err => console.error(err));
         }).catch(err => console.error(err));
         return () => { cancelled = true; stop(); };
       },
-      async add(postId, name, text) {
+      async add(postId, text) {
         const { fs, db } = await ready;
-        await fs.addDoc(fs.collection(db, "posts", postId, "comments"), { name, text, createdAt: fs.serverTimestamp() });
+        const counterRef = fs.doc(db, "counters", "comments");
+        await fs.runTransaction(db, async tx => {
+          const snap = await tx.get(counterRef);
+          const num = (snap.exists() ? snap.data().n : 0) + 1;
+          tx.set(counterRef, { n: num });
+          tx.set(fs.doc(db, "comments", "c" + num), {
+            post: postId, num, text, uid: myUid, createdAt: fs.serverTimestamp(),
+          });
+        });
+      },
+      async remove(c) {
+        const { fs, db } = await ready;
+        await fs.deleteDoc(fs.doc(db, "comments", "c" + c.num));
       },
     };
   }
 
   // Fallback when Firebase is not configured: comments stay in this browser only.
   function localStore() {
-    const listeners = {};
-    const key = id => "keyflo-comments-" + id;
-    const read = id => { try { return JSON.parse(localStorage.getItem(key(id))) || []; } catch { return []; } };
+    const listeners = new Set();
+    const read = () => { try { return JSON.parse(localStorage.getItem("keyflo-comments")) || []; } catch { return []; } };
+    const write = all => {
+      try { localStorage.setItem("keyflo-comments", JSON.stringify(all)); } catch {}
+      listeners.forEach(l => l());
+    };
+    const nextNum = () => {
+      let n = 0;
+      try { n = Number(localStorage.getItem("keyflo-comment-seq")) || 0; } catch {}
+      n += 1;
+      try { localStorage.setItem("keyflo-comment-seq", String(n)); } catch {}
+      return n;
+    };
     return {
+      isMine: () => true,
       subscribe(postId, cb) {
-        (listeners[postId] ||= new Set()).add(cb);
-        cb(read(postId));
-        return () => listeners[postId].delete(cb);
+        const l = () => cb(read().filter(c => c.post === postId));
+        listeners.add(l);
+        l();
+        return () => listeners.delete(l);
       },
-      async add(postId, name, text) {
-        const next = [...read(postId), { name, text }];
-        try { localStorage.setItem(key(postId), JSON.stringify(next)); } catch {}
-        listeners[postId]?.forEach(cb => cb(next));
-      },
+      async add(postId, text) { write([...read(), { post: postId, num: nextNum(), text }]); },
+      async remove(c) { write(read().filter(x => x.num !== c.num)); },
     };
   }
 

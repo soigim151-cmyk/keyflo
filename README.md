@@ -24,10 +24,14 @@ python3 -m http.server 8000 -d docs
 
 ## 댓글 저장 (Firebase)
 
+- 닉네임은 사이트 전체 댓글 순서대로 `익명1`, `익명2`…가 자동으로 붙습니다(게시물별이 아니라 전체 기준). 삭제해도 다른 댓글의 번호는 바뀌지 않습니다. 접두어는 `docs/script.js`의 `NICK_PREFIX`에서 바꿀 수 있습니다.
+- 자기가 쓴 댓글에만 `삭제` 버튼이 보입니다. 같은 기기·브라우저로 판단합니다.
 - `docs/firebase-config.js`가 `null`이면 댓글은 각 방문자의 브라우저에만 남습니다.
-- Firebase 웹 앱의 `firebaseConfig` 값을 넣으면 모든 방문자에게 공유됩니다. 저장 위치는 `posts/{게시물번호}/comments`입니다.
-- 보안 규칙은 `firestore.rules`를 Firebase 콘솔 → Firestore → 규칙에 붙여넣습니다. 누구나 읽고 쓸 수 있지만 수정·삭제는 막혀 있고, 이름은 20자, 내용은 300자까지입니다.
-- 원치 않는 댓글은 Firebase 콘솔 → Firestore → 데이터에서 삭제합니다.
+- Firebase 웹 앱의 `firebaseConfig` 값을 넣으면 모든 방문자에게 공유됩니다. 필요한 설정은 아래와 같습니다.
+  - Authentication → 로그인 방법 → **익명** 사용 설정
+  - Firestore → 규칙에 `firestore.rules` 붙여넣기
+- 저장 구조: `comments/c{번호}` = `{ post, num, text, uid, createdAt }`, `counters/comments` = `{ n }`
+- 관리자는 Firebase 콘솔 → Firestore → 데이터에서 어떤 댓글이든 삭제할 수 있습니다.
 
 ## 1번 게시물 영상 넣기
 

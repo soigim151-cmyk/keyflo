@@ -270,6 +270,8 @@ body.feed-open { overflow: hidden; }
 .feed-likes { font-weight: 400; }
 .feed-likes b, .feed-caption strong, .feed-comments strong { font-weight: 600; }
 .feed-comments { list-style: none; }
+.del-btn { color: #737373; font-size: 12px; margin-left: 4px; }
+.del-btn:hover { color: #ed4956; }
 .feed-caption p { white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
 .feed-caption .tag { color: #00376b; white-space: nowrap; }
 .feed-caption .more-btn { display: none; color: #737373; font-size: 14px; }
