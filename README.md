@@ -4,10 +4,10 @@ KEYFLO 향수 브랜드의 인스타그램 스타일 프로필 페이지입니�
 
 ## 실행
 
-빌드 과정이 없는 정적 사이트입니다. `index.html`을 브라우저로 열면 됩니다.
+빌드 과정이 없는 정적 사이트입니다. `docs/index.html`을 브라우저로 열면 됩니다.
 
 ```bash
-python3 -m http.server 8000
+python3 -m http.server 8000 -d docs
 ```
 
 ## 기능
@@ -20,11 +20,11 @@ python3 -m http.server 8000
 
 ## 구조
 
-- `index.html` 페이지 구조
-- `style.css` 디자인 수치. 1 디자인 px = `--u`이며, 402px 너비에서 1:1, 최대 520px까지 확대됩니다.
-- `script.js` 인터랙션
-- `assets/` Figma에서 내려받은 이미지와 아이콘
+- `docs/index.html` 페이지 구조
+- `docs/style.css` 디자인 수치. 1 디자인 px = `--u`이며, 402px 너비에서 1:1, 최대 520px까지 확대됩니다.
+- `docs/script.js` 인터랙션
+- `docs/assets/` Figma에서 내려받은 이미지와 아이콘
 
 ## 배포 (GitHub Pages)
 
-Settings → Pages → Source: **Deploy from a branch** → Branch: `main` / `(root)` → Save
+Settings → Pages → Source: **Deploy from a branch** → Branch: `main` / `/docs` → Save
