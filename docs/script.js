@@ -92,6 +92,10 @@
         sound.setAttribute("aria-label", v.muted ? "소리 켜기" : "소리 끄기");
       });
       v.addEventListener("loadeddata", () => tile.appendChild(sound), { once: true });
+      // Show the video at its own shape (e.g. 16:9) like Instagram, instead of cropping it to the tile.
+      v.addEventListener("loadedmetadata", () => {
+        if (v.videoWidth && v.videoHeight) tile.style.aspectRatio = `${v.videoWidth} / ${v.videoHeight}`;
+      }, { once: true });
       v.addEventListener("click", () => (v.paused ? v.play() : v.pause()));
       tile.appendChild(v);
     }
