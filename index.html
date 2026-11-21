@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>KEYFLO | Fragrance Brand</title>
+  <meta name="description" content="Scent holds what time leaves behind. Keep your moments with KEYFLO." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <!-- ───────── Profile header ───────── -->
+    <header class="profile">
+      <button class="back" type="button" aria-label="뒤로 가기" onclick="history.length > 1 ? history.back() : null">
+        <img src="assets/icon-back.svg" alt="" />
+      </button>
+      <h1 class="handle">KEYFLO</h1>
+      <button class="more" type="button" aria-label="더보기">...</button>
+
+      <div class="avatar">
+        <img class="avatar-ring" src="assets/ring-profile.svg" alt="" />
+        <img class="avatar-logo" src="assets/logo-keyflo.png" alt="KEYFLO" />
+      </div>
+
+      <p class="display-name">KEYFLO | Fragrance Brand</p>
+      <ul class="stats">
+        <li style="--x:142.64; --w:37.22"><strong>15</strong><span>게시물</span></li>
+        <li style="--x:229.61; --w:36.17"><strong id="followerCount">8059</strong><span>팔로워</span></li>
+        <li style="--x:316.58; --w:34.24"><strong>14</strong><span>팔로잉</span></li>
+      </ul>
+
+      <p class="bio-name">키플로</p>
+      <p class="bio">Scent holds what time leaves behind.<br />Keep your moments with KEYFLO.</p>
+      <img class="link-icon" src="assets/icon-link.svg" alt="" />
+      <a class="bio-link" href="https://keyflo.com" target="_blank" rel="noopener">https://keyflo.com</a>
+
+      <div class="actions">
+        <button id="followBtn" class="btn btn-primary" type="button" aria-pressed="false" style="--x:19.95">팔로우</button>
+        <button id="messageBtn" class="btn" type="button" style="--x:141.23">메세지</button>
+        <a class="btn" href="https://keyflo.com" target="_blank" rel="noopener" style="--x:262.51">Shop</a>
+      </div>
+
+      <!-- Highlights -->
+      <ul class="highlights">
+        <li style="--x:41.91">
+          <button type="button" class="hl" data-story="about" aria-label="ABOUT 하이라이트 보기">
+            <img class="hl-ring" src="assets/ring-story.svg" alt="" />
+            <img class="hl-inner" src="assets/story-inner.svg" alt="" />
+            <span class="hl-text">KEYFLO</span>
+          </button>
+          <span class="hl-label">ABOUT</span>
+        </li>
+        <li style="--x:111.94">
+          <button type="button" class="hl" data-story="scent" aria-label="SCENT 하이라이트 보기">
+            <img class="hl-ring" src="assets/ring-story.svg" alt="" />
+            <img class="hl-inner" src="assets/story-inner.svg" alt="" />
+            <img class="hl-photo" src="assets/story-725.png" alt="" />
+            <img class="hl-symbol hl-symbol--scent" src="assets/story-726.png" alt="" />
+          </button>
+          <span class="hl-label">SCENT</span>
+        </li>
+        <li style="--x:180.21">
+          <button type="button" class="hl" data-story="object" aria-label="OBJECT 하이라이트 보기">
+            <img class="hl-ring" src="assets/ring-story-active.svg" alt="" />
+            <img class="hl-inner" src="assets/story-inner-active.svg" alt="" />
+            <img class="hl-symbol hl-symbol--object" src="assets/symbol-keyflow.png" alt="" />
+          </button>
+          <span class="hl-label">OBJECT</span>
+        </li>
+      </ul>
+
+      <!-- Tabs -->
+      <nav class="tabs" role="tablist" aria-label="게시물 보기">
+        <button role="tab" class="tab tab-grid" data-tab="grid" aria-selected="true" aria-label="게시물">
+          <img src="assets/icon-grid.svg" alt="" />
+        </button>
+        <button role="tab" class="tab tab-reels" data-tab="reels" aria-selected="false" aria-label="릴스">
+          <img src="assets/icon-play.svg" alt="" />
+        </button>
+        <button role="tab" class="tab tab-tagged" data-tab="tagged" aria-selected="false" aria-label="태그됨">
+          <img src="assets/icon-tagged.svg" alt="" />
+        </button>
+        <span class="tab-indicator" aria-hidden="true"></span>
+      </nav>
+    </header>
+
+    <!-- ───────── Feed grid ─────────
+         Layer coordinates (--x/--y/--w/--h) are Figma px relative to each tile's
+         top-left, on a 134-wide design tile whose height (--th) varies per row as in Figma; CSS converts them to %. -->
+    <section class="grid" id="grid">
+      <!-- 1 -->
+      <article class="post" data-type="reel" style="--th:159.03" tabindex="0" aria-label="게시물 1 · 릴스">
+        <img class="L fill" src="assets/post-694.png" alt="" style="--x:-19.3; --y:0; --w:172.41; --h:159.33" />
+        <p class="L caption-tiny" style="--cx:68.23; --y:141.77">Scent holds what time leaves behind.</p>
+        <img class="L" src="assets/icon-reel.svg" alt="" style="--x:119.97; --y:6.17; --w:8.18; --h:9.62" />
+      </article>
+      <!-- 2 -->
+      <article class="post" style="--th:159.03" tabindex="0" aria-label="게시물 2">
+        <img class="L fill" src="assets/post-715.png" alt="" style="--x:0; --y:0; --w:133.62; --h:162.86" />
+        <span class="L fill-dark" style="--x:83.75; --y:106.99; --w:9.75; --h:9.8"></span>
+        <span class="L fill-dark" style="--x:80.74; --y:119.97; --w:16.39; --h:3.72; --r:1.13deg"></span>
+        <img class="L cover" src="assets/label-723.png" alt="" style="--x:85.24; --y:109.36; --w:7.34; --h:6.52; --r:1.14deg" />
+        <img class="L cover" src="assets/logo-keyflo-15.png" alt="" style="--x:82.89; --y:119.79; --w:12.84; --h:3.74; --r:0.81deg" />
+        <p class="L title-white" style="--cx:65.35; --y:75.43">KEYFLO</p>
+      </article>
+      <!-- 3 -->
+      <article class="post" data-type="carousel" style="--th:159.03" tabindex="0" aria-label="게시물 3 · 여러 장">
+        <img class="L fill" src="assets/post-701.png" alt="" style="--x:-33.35; --y:0; --w:183.48; --h:159.33" />
+        <p class="L caption-tiny" style="--cx:65.96; --y:141.77">Scent holds what time leaves behind.</p>
+        <img class="L" src="assets/icon-carousel.svg" alt="" style="--x:112.35; --y:7.19; --w:11.19; --h:12.09" />
+      </article>
+      <!-- 4 -->
+      <article class="post" data-type="carousel" style="--th:165.64" tabindex="0" aria-label="게시물 4 · 여러 장">
+        <div class="L crop" style="--x:-6.71; --y:0; --w:142.97; --h:169.57">
+          <img src="assets/pattern-719.png" alt="" style="left:2.53%; top:-13.61%; width:103.44%; height:121.79%" />
+        </div>
+        <img class="L cover" src="assets/logo-keyflo.png" alt="KEYFLO" style="--x:46.09; --y:77.54; --w:40.46; --h:11.77" />
+        <img class="L" src="assets/icon-carousel.svg" alt="" style="--x:115; --y:11.49; --w:11.19; --h:12.09" />
+      </article>
+      <!-- 5 -->
+      <article class="post" style="--th:165.64" tabindex="0" aria-label="게시물 5">
+        <div class="L crop" style="--x:0.04; --y:0.16; --w:133.62; --h:166.15">
+          <img src="assets/post-720.png" alt="" style="left:-2.05%; top:-0.62%; width:104.1%; height:111.63%" />
+        </div>
+        <p class="L title-white" style="--cx:66.85; --y:17.58">KEYFLO</p>
+      </article>
+      <!-- 6 -->
+      <article class="post" data-type="carousel" style="--th:165.64" tabindex="0" aria-label="게시물 6 · 여러 장">
+        <div class="L crop flip-x" style="--x:-0.38; --y:0; --w:143.65; --h:169.57">
+          <img src="assets/pattern-719.png" alt="" style="left:2.52%; top:-13.61%; width:102.96%; height:121.79%" />
+        </div>
+        <img class="L cover" src="assets/symbol-677.png" alt="" style="--x:57.45; --y:78.26; --w:19.2; --h:17.06" />
+        <span class="L" style="--x:100.84; --y:142.11; --w:4.61; --h:4.64; --r:-1.43deg; background:#25170f"></span>
+        <img class="L cover" src="assets/label-723.png" alt="" style="--x:101.58; --y:143.26; --w:3.47; --h:3.08; --r:-0.28deg" />
+        <img class="L" src="assets/icon-carousel.svg" alt="" style="--x:112.35; --y:11.49; --w:11.19; --h:12.09" />
+      </article>
+      <!-- 7 -->
+      <article class="post" style="--th:162.5" tabindex="0" aria-label="게시물 7">
+        <div class="L crop" style="--x:0; --y:0; --w:135.69; --h:192.05">
+          <img src="assets/post-714.png" alt="" style="inset:0; width:100%; height:100%; object-fit:cover" />
+          <img src="assets/post-716.png" alt="" style="left:-3.81%; top:0; width:122.29%; height:86.4%" />
+        </div>
+      </article>
+      <!-- 8 -->
+      <article class="post" data-type="carousel" style="--th:162.5" tabindex="0" aria-label="게시물 8 · 여러 장">
+        <div class="L crop" style="--x:0; --y:0; --w:133.66; --h:162.5">
+          <img src="assets/post-717.png" alt="" style="left:-3.96%; top:-8.49%; width:109.27%; height:114.55%" />
+        </div>
+        <img class="L" src="assets/icon-carousel.svg" alt="" style="--x:114.24; --y:11.71; --w:11.19; --h:12.09" />
+      </article>
+      <!-- 9 -->
+      <article class="post" style="--th:162.5" tabindex="0" aria-label="게시물 9">
+        <div class="L crop" style="--x:-0.81; --y:0.67; --w:138.33; --h:204.87">
+          <img src="assets/post-700.png" alt="" style="left:0; top:-10.05%; width:100%; height:101.28%" />
+        </div>
+      </article>
+
+      <p class="empty" hidden>아직 태그된 게시물이 없어요.</p>
+    </section>
+  </main>
+
+  <!-- Post viewer -->
+  <dialog class="viewer" id="postViewer" aria-label="게시물 보기">
+    <div class="viewer-card">
+      <header class="viewer-head">
+        <span class="mini-avatar"><img src="assets/logo-keyflo.png" alt="" /></span>
+        <strong>KEYFLO</strong>
+        <button class="close" type="button" aria-label="닫기">✕</button>
+      </header>
+      <div class="viewer-media"></div>
+      <footer class="viewer-foot">
+        <button class="like" type="button" aria-pressed="false" aria-label="좋아요">♡</button>
+        <p><strong>KEYFLO</strong> Scent holds what time leaves behind.</p>
+      </footer>
+    </div>
+  </dialog>
+
+  <!-- Story viewer -->
+  <dialog class="story" id="storyViewer" aria-label="하이라이트">
+    <div class="story-bars"></div>
+    <div class="story-head">
+      <span class="mini-avatar"><img src="assets/logo-keyflo.png" alt="" /></span>
+      <strong class="story-title"></strong>
+      <button class="close" type="button" aria-label="닫기">✕</button>
+    </div>
+    <img class="story-img" alt="" />
+    <button class="story-nav prev" type="button" aria-label="이전"></button>
+    <button class="story-nav next" type="button" aria-label="다음"></button>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
